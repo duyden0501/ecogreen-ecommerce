@@ -1,0 +1,187 @@
+// =============================================
+// PRISMA SCHEMA — ECOGREEN E-COMMERCE
+// =============================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── USER & AUTH ───────────────────────────────
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  password    String
+  name        String
+  phone       String?
+  address     String?
+  role        Role     @default(CUSTOMER)
+  isVerified  Boolean  @default(false)
+  otpCode     String?
+  otpExpiry   DateTime?
+  ecoPoints   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  orders      Order[]
+  reviews     Review[]
+  cartItems   CartItem[]
+  ecoTransactions EcoTransaction[]
+
+  @@map("users")
+}
+
+enum Role {
+  ADMIN
+  CUSTOMER
+}
+
+// ── PRODUCT & CATEGORY ───────────────────────
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  createdAt   DateTime  @default(now())
+
+  products    Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id              String   @id @default(cuid())
+  name            String
+  slug            String   @unique
+  description     String
+  price           Float
+  stock           Int      @default(0)
+  images          String[]
+  material        String   // vải tre, bã cà phê, chai PET...
+  recycledPercent Int      @default(0) // % nguyên liệu tái chế
+  co2SavedPerUnit Float    @default(0) // kg CO2 giảm mỗi sản phẩm
+  ecoScore        Int      @default(0) // điểm xanh 1–100
+  isActive        Boolean  @default(true)
+  categoryId      String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  category    Category    @relation(fields: [categoryId], references: [id])
+  orderItems  OrderItem[]
+  reviews     Review[]
+  cartItems   CartItem[]
+
+  @@map("products")
+}
+
+// ── CART ─────────────────────────────────────
+
+model CartItem {
+  id        String  @id @default(cuid())
+  userId    String
+  productId String
+  quantity  Int     @default(1)
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId])
+  @@map("cart_items")
+}
+
+// ── ORDER ────────────────────────────────────
+
+model Order {
+  id              String      @id @default(cuid())
+  userId          String
+  status          OrderStatus @default(PENDING)
+  paymentMethod   String      // COD | VNPAY
+  paymentStatus   String      @default("UNPAID")
+  totalAmount     Float
+  totalCo2Saved   Float       @default(0)
+  shippingAddress String
+  vnpayTxnRef     String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  user        User        @relation(fields: [userId], references: [id])
+  orderItems  OrderItem[]
+
+  @@map("orders")
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPING
+  DELIVERED
+  CANCELLED
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  productId String
+  quantity  Int
+  price     Float
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+// ── REVIEW ───────────────────────────────────
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  rating    Int      // 1–5
+  comment   String?
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId])
+  @@map("reviews")
+}
+
+// ── ECO POINTS ───────────────────────────────
+
+model EcoTransaction {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String   // EARN | REDEEM
+  points      Int
+  description String?
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("eco_transactions")
+}
+
+// ── VOUCHER ──────────────────────────────────
+
+model Voucher {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  discount    Float    // % hoặc VNĐ
+  type        String   // PERCENT | FIXED
+  minOrder    Float    @default(0)
+  maxUses     Int      @default(1)
+  usedCount   Int      @default(0)
+  expiresAt   DateTime
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  @@map("vouchers")
+}
