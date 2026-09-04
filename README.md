@@ -18,7 +18,7 @@
 * 🌱 **Thành viên 6 — Trải nghiệm Sống Xanh:**
   * **BE:** Thuật toán tính $CO_2$ giảm thải, Logic Điểm Xanh (Eco-Points).
   * **FE:** Trang chủ, Widget đếm số $CO_2$ cả cộng đồng, Ví Điểm Xanh.
-* 🏗️ **Thành viên 7 (Lead) — Hạ tầng & Giao diện chung:**
+* 🏗️ **Thành viên 7 — Hạ tầng & Giao diện chung:**
   * **BE & DevOps:** Khởi tạo CSDL Prisma, Docker, Redis, Bảo mật Helmet/CORS.
   * **FE Core:** Layout, Header/Footer, Bảng màu Tailwind, Axios, UI Component dùng chung.
 
