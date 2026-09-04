@@ -1,187 +1,257 @@
-// =============================================
-// PRISMA SCHEMA — ECOGREEN E-COMMERCE
-// =============================================
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "postgresql" // Lưu ý: images String[] yêu cầu postgresql
   url      = env("DATABASE_URL")
 }
 
-// ── USER & AUTH ───────────────────────────────
-
-model User {
-  id          String   @id @default(cuid())
-  email       String   @unique
-  password    String
-  name        String
-  phone       String?
-  address     String?
-  role        Role     @default(CUSTOMER)
-  isVerified  Boolean  @default(false)
-  otpCode     String?
-  otpExpiry   DateTime?
-  ecoPoints   Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  orders      Order[]
-  reviews     Review[]
-  cartItems   CartItem[]
-  ecoTransactions EcoTransaction[]
-
-  @@map("users")
-}
-
+// ==========================================
+// 1. ENUM TRẠNG THÁI & PHÂN QUYỀN
+// ==========================================
 enum Role {
-  ADMIN
   CUSTOMER
-}
-
-// ── PRODUCT & CATEGORY ───────────────────────
-
-model Category {
-  id          String    @id @default(cuid())
-  name        String    @unique
-  slug        String    @unique
-  description String?
-  createdAt   DateTime  @default(now())
-
-  products    Product[]
-
-  @@map("categories")
-}
-
-model Product {
-  id              String   @id @default(cuid())
-  name            String
-  slug            String   @unique
-  description     String
-  price           Float
-  stock           Int      @default(0)
-  images          String[]
-  material        String   // vải tre, bã cà phê, chai PET...
-  recycledPercent Int      @default(0) // % nguyên liệu tái chế
-  co2SavedPerUnit Float    @default(0) // kg CO2 giảm mỗi sản phẩm
-  ecoScore        Int      @default(0) // điểm xanh 1–100
-  isActive        Boolean  @default(true)
-  categoryId      String
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  category    Category    @relation(fields: [categoryId], references: [id])
-  orderItems  OrderItem[]
-  reviews     Review[]
-  cartItems   CartItem[]
-
-  @@map("products")
-}
-
-// ── CART ─────────────────────────────────────
-
-model CartItem {
-  id        String  @id @default(cuid())
-  userId    String
-  productId String
-  quantity  Int     @default(1)
-
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  product Product @relation(fields: [productId], references: [id])
-
-  @@unique([userId, productId])
-  @@map("cart_items")
-}
-
-// ── ORDER ────────────────────────────────────
-
-model Order {
-  id              String      @id @default(cuid())
-  userId          String
-  status          OrderStatus @default(PENDING)
-  paymentMethod   String      // COD | VNPAY
-  paymentStatus   String      @default("UNPAID")
-  totalAmount     Float
-  totalCo2Saved   Float       @default(0)
-  shippingAddress String
-  vnpayTxnRef     String?
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-
-  user        User        @relation(fields: [userId], references: [id])
-  orderItems  OrderItem[]
-
-  @@map("orders")
+  STAFF
+  ADMIN
 }
 
 enum OrderStatus {
-  PENDING
-  CONFIRMED
-  SHIPPING
-  DELIVERED
-  CANCELLED
+  PENDING    // Mới đặt (Chờ duyệt)
+  PAID       // Đã thanh toán (VNPay)
+  SHIPPING   // Đang giao hàng
+  COMPLETED  // Đã hoàn tất
+  CANCELLED  // Đã hủy
 }
 
+// ==========================================
+// 2. BẢNG TÀI KHOẢN
+// ==========================================
+model User {
+  id           String      @id @default(uuid())
+  fullName     String
+  email        String      @unique
+  password     String
+  phone        String?
+  address      String?
+  gender       Boolean?    @default(true) // true: Nam, false: Nữ
+  birthDate    DateTime?
+  avatar       String?
+  isActive     Boolean     @default(true)
+  role         Role        @default(CUSTOMER)
+  
+  // 🌿 Điểm Xanh đổi voucher
+  ecoPoints    Int         @default(0) 
+
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  orders       Order[]
+  cartItems    CartItem[]  // 👈 Giỏ hàng
+  favorites    Favorite[]  // 👈 Danh sách yêu thích
+  reviews      Review[]    // 👈 Đánh giá sản phẩm
+  feedbacks    Feedback[]
+}
+
+// ==========================================
+// 3. BẢNG DANH MỤC SẢN PHẨM
+// ==========================================
+model Category {
+  id           Int         @id @default(autoincrement())
+  name         String
+  slug         String      @unique
+  description  String?
+  imageUrl     String?
+
+  products     Product[]
+}
+
+// ==========================================
+// 4. BẢNG NHÀ CUNG CẤP
+// ==========================================
+model Supplier {
+  id           String      @id // Tự nhập mã (VD: "NCC01")
+  companyName  String
+  logo         String?
+  contactName  String?
+  email        String?
+  phone        String?
+  address      String?
+  description  String?
+
+  products     Product[]
+}
+
+// ==========================================
+// 5. 🌿 BẢNG CHẤT LIỆU TÁI CHẾ
+// ==========================================
+model Material {
+  id           Int         @id @default(autoincrement())
+  name         String      // Vải sợi tre, Bã cà phê, Nhựa tái sinh...
+  description  String?
+
+  products     Product[]
+}
+
+// ==========================================
+// 6. BẢNG HÀNG HÓA / SẢN PHẨM
+// ==========================================
+model Product {
+  id              Int         @id @default(autoincrement())
+  name            String
+  slug            String      @unique
+  unitDescription String?     // Cái, Hộp, Bộ
+  price           Float
+  discountPrice   Float?      @default(0)
+  images          String[]    // Link ảnh (PostgreSQL array)
+  views           Int         @default(0)
+  description     String?
+  stock           Int         @default(100)
+
+  // 🌿 Chỉ số Sống Xanh:
+  recycledPercent Float       @default(0)  // % tái chế
+  co2SavedKg      Float       @default(0)  // Số kg CO2 giảm
+  greenPoints     Int         @default(10) // Điểm xanh tặng khi mua
+
+  // Khóa ngoại
+  categoryId      Int
+  category        Category    @relation(fields: [categoryId], references: [id])
+
+  supplierId      String?
+  supplier        Supplier?   @relation(fields: [supplierId], references: [id])
+
+  materialId      Int?
+  material        Material?   @relation(fields: [materialId], references: [id])
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  orderItems      OrderItem[]
+  cartItems       CartItem[]
+  favorites       Favorite[]
+  reviews         Review[]
+}
+
+// ==========================================
+// 7. BẢNG GIỎ HÀNG (Bổ sung mới)
+// ==========================================
+model CartItem {
+  id         Int       @id @default(autoincrement())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId  Int
+  product    Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity   Int       @default(1)
+
+  @@unique([userId, productId]) // Mỗi user chỉ có 1 dòng cho mỗi sản phẩm trong giỏ
+}
+
+// ==========================================
+// 8. BẢNG HÓA ĐƠN / ĐƠN HÀNG
+// ==========================================
+model Order {
+  id              Int           @id @default(autoincrement())
+  userId          String
+  user            User          @relation(fields: [userId], references: [id])
+  orderDate       DateTime      @default(now())
+  deliveryDate    DateTime?
+  receiverName    String
+  receiverAddress String
+  receiverPhone   String
+  paymentMethod   String        @default("COD") // "COD", "VNPAY"
+  shippingMethod  String?       @default("Tiêu chuẩn")
+  shippingFee     Float         @default(0)
+  status          OrderStatus   @default(PENDING)
+  notes           String?
+  totalAmount     Float
+  totalCo2Saved   Float         @default(0) // 🌿 Tổng CO2 đơn hàng giảm được
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  items           OrderItem[]
+}
+
+// ==========================================
+// 9. BẢNG CHI TIẾT HÓA ĐƠN
+// ==========================================
 model OrderItem {
-  id        String  @id @default(cuid())
-  orderId   String
-  productId String
-  quantity  Int
-  price     Float
-
-  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product Product @relation(fields: [productId], references: [id])
-
-  @@map("order_items")
+  id         Int       @id @default(autoincrement())
+  orderId    Int
+  order      Order     @relation(fields: [orderId], references: [id], onDelete: Cascade) // 👈 Thêm cascade xóa
+  productId  Int
+  product    Product   @relation(fields: [productId], references: [id])
+  price      Float
+  quantity   Int
+  discount   Float?    @default(0)
 }
 
-// ── REVIEW ───────────────────────────────────
+// ==========================================
+// 10. BẢNG YÊU THÍCH (Tách riêng - chỉ lưu thả tim)
+// ==========================================
+model Favorite {
+  id         Int       @id @default(autoincrement())
+  productId  Int
+  product    Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
 
+  @@unique([userId, productId]) // 👈 Chống trùng lặp
+}
+
+// ==========================================
+// 11. BẢNG ĐÁNH GIÁ SẢN PHẨM (Tách riêng - 1 đến 5 sao)
+// ==========================================
 model Review {
-  id        String   @id @default(cuid())
-  userId    String
-  productId String
-  rating    Int      // 1–5
-  comment   String?
-  createdAt DateTime @default(now())
+  id         Int       @id @default(autoincrement())
+  productId  Int
+  product    Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating     Int       // 1 đến 5 sao
+  comment    String?
+  createdAt  DateTime  @default(now())
 
-  user    User    @relation(fields: [userId], references: [id])
-  product Product @relation(fields: [productId], references: [id])
-
-  @@unique([userId, productId])
-  @@map("reviews")
+  @@unique([userId, productId]) // Mỗi người chỉ đánh giá 1 lần cho 1 sản phẩm
 }
 
-// ── ECO POINTS ───────────────────────────────
-
-model EcoTransaction {
-  id          String   @id @default(cuid())
-  userId      String
-  type        String   // EARN | REDEEM
-  points      Int
-  description String?
-  createdAt   DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id])
-
-  @@map("eco_transactions")
+// ==========================================
+// 12. BẢNG GÓP Ý / LIÊN HỆ
+// ==========================================
+model Feedback {
+  id         Int       @id @default(autoincrement())
+  userId     String?
+  user       User?     @relation(fields: [userId], references: [id])
+  fullName   String
+  email      String
+  phone      String?
+  content    String
+  isReplied  Boolean   @default(false)
+  reply      String?
+  createdAt  DateTime  @default(now())
 }
 
-// ── VOUCHER ──────────────────────────────────
+// ==========================================
+// 13. BẢNG HỎI ĐÁP / FAQ
+// ==========================================
+model FAQ {
+  id         Int       @id @default(autoincrement())
+  question   String
+  answer     String
+  createdAt  DateTime  @default(now())
+}
 
+// ==========================================
+// 14. 🌿 BẢNG VOUCHER / MÃ GIẢM GIÁ (Bổ sung để đổi điểm xanh)
+// ==========================================
 model Voucher {
-  id          String   @id @default(cuid())
+  id          Int      @id @default(autoincrement())
   code        String   @unique
-  discount    Float    // % hoặc VNĐ
-  type        String   // PERCENT | FIXED
-  minOrder    Float    @default(0)
-  maxUses     Int      @default(1)
-  usedCount   Int      @default(0)
+  discount    Float    // Giá trị giảm (% hoặc VNĐ)
+  pointsCost  Int      @default(50) // Số Điểm Xanh cần dùng để đổi
+  minOrder    Float    @default(0)  // Đơn hàng tối thiểu
   expiresAt   DateTime
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
-
-  @@map("vouchers")
 }
