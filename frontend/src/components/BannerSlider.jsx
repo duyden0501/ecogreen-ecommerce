@@ -47,6 +47,7 @@ const BannerSlider = () => {
             timeoutRef.current = setTimeout(nextSlide, 4000);
         }
         return () => resetTimeout();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentIndex, isAutoPlaying]);
 
     if (!bannerItems.length) return null;
@@ -62,7 +63,7 @@ const BannerSlider = () => {
                     className="slider-wrapper" 
                     style={{ transform: `translateX(-${currentIndex * 100}%)` }}
                 >
-                    {bannerItems.map((item, index) => (
+                    {bannerItems.map((item) => (
                         <div className="slider-item" key={item.id}>
                             <img src={item.image} alt={item.title} className="slider-img" />
                         </div>

@@ -23,7 +23,7 @@ const ProductDetail = () => {
                 const data = await getProductById(id);
                 setProduct(data);
                 setQuantity(1);
-            } catch (error) {
+            } catch {
                 setProduct(null);
             } finally {
                 setLoading(false);

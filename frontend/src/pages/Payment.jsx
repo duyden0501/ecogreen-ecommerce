@@ -26,7 +26,10 @@ const Payment = () => {
     }
   };
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [orderId]);
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderId]);
 
   const handlePay = async () => {
     setPaying(true);
