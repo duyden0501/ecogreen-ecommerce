@@ -9,6 +9,7 @@ import { getAllOrders, updateOrderStatus } from '../../services/orderApi';
 import { getAllUsers, deleteUser } from '../../services/userApi';
 import { getAllReturns, updateReturnStatus } from '../../services/returnApi';
 import AdminStats from '../../components/AdminStats';
+import SalesDashboard from './SalesDashboard';
 import { resolveProductImage } from '../../utils/imageResolver';
 
 const emptyProduct = { name: '', price: '', image: '', description: '', stockQuantity: 0, categoryId: '', status: 'ACTIVE' };
@@ -42,6 +43,12 @@ const AdminDashboard = () => {
   const [isEditCategory, setIsEditCategory] = useState(false);
 
   useEffect(() => {
+    // 'sales' manages its own data fetching entirely (see SalesDashboard.jsx) -
+    // skip the shared loadData()/loading/errorMsg cycle for that tab.
+    if (activeTab === 'sales') {
+      setLoading(false);
+      return;
+    }
     loadData();
     // eslint-disable-next-line
   }, [activeTab]);
@@ -147,6 +154,7 @@ const AdminDashboard = () => {
 
   const tabLabel = {
     products: 'Products',
+    sales: 'Sales Dashboard',
     categories: 'Categories',
     orders: 'Orders',
     returns: 'Quản lý Đổi / Trả hàng (Returns & Refunds)',
@@ -161,7 +169,7 @@ const AdminDashboard = () => {
           <h2 style={{ fontSize: '1.2rem', margin: 0 }}>🌿 EcoGreen Admin</h2>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          {['products', 'categories', 'orders', 'returns', 'users'].map((tab) => (
+          {['products', 'sales', 'categories', 'orders', 'returns', 'users'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -173,6 +181,7 @@ const AdminDashboard = () => {
               }}
             >
               {tab === 'products' && '📦 Products'}
+              {tab === 'sales' && '📈 Sales Dashboard'}
               {tab === 'categories' && '🏷️ Categories'}
               {tab === 'orders' && '📜 Orders'}
               {tab === 'returns' && '♻️ Đổi / Trả hàng'}
@@ -197,11 +206,13 @@ const AdminDashboard = () => {
         </div>
 
         <div style={{ padding: '30px', overflowY: 'auto' }}>
-          <AdminStats />
+          {activeTab !== 'sales' && <AdminStats />}
 
           {errorMsg && <p style={{ color: '#c62828' }}>{errorMsg}</p>}
 
-          {loading ? (
+          {activeTab === 'sales' ? (
+            <SalesDashboard />
+          ) : loading ? (
             <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>
           ) : (
             <>
