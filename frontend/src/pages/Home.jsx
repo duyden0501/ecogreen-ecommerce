@@ -98,11 +98,11 @@ const Home = ({ searchTerm }) => {
         {loading ? (
           <div className="loading-state">
             <div className="spinner"></div>
-            <p>Loading products...</p>
+            <p>Đang tải danh sách sản phẩm sinh thái...</p>
           </div>
         ) : error ? (
           <div className="no-results">
-            <h3>Something went wrong</h3>
+            <h3>Đã xảy ra lỗi khi tải sản phẩm</h3>
             <p>{error}</p>
           </div>
         ) : (
@@ -122,8 +122,8 @@ const Home = ({ searchTerm }) => {
             ) : (
               <div className="no-results">
                 <div className="no-results-icon">🌱</div>
-                <h3>No products available yet</h3>
-                <p>Check back soon - new EcoGreen products are added regularly.</p>
+                <h3>Chưa có sản phẩm nào phù hợp</h3>
+                <p>Vui lòng thử tìm kiếm với từ khóa khác hoặc quay lại sau.</p>
               </div>
             )}
 

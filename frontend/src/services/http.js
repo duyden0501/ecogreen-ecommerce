@@ -21,10 +21,10 @@ http.interceptors.response.use(
   (error) => {
     const message =
       error?.response?.data?.message ||
-      (error?.response?.status === 401 && 'Please log in to continue.') ||
-      (error?.response?.status === 403 && 'You do not have permission to do this.') ||
-      (error?.code === 'ERR_NETWORK' && 'Cannot reach the server. Please try again.') ||
-      'Something went wrong. Please try again.';
+      (error?.response?.status === 401 && 'Vui lòng đăng nhập để tiếp tục.') ||
+      (error?.response?.status === 403 && 'Bạn không có quyền thực hiện thao tác này.') ||
+      (error?.code === 'ERR_NETWORK' && 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối mạng.') ||
+      'Đã xảy ra lỗi. Vui lòng thử lại sau.';
     return Promise.reject({ ...error, friendlyMessage: message });
   }
 );
