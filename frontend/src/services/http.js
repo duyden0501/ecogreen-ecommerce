@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// Backend base URL (Spring Boot runs on 8081 by default - see backend/application.properties)
-export const API_BASE_URL = 'http://localhost:8081/api';
+// Backend base URL (proxied via Vite server to Spring Boot on port 8081)
+export const API_BASE_URL = '/api';
 
 const http = axios.create({ baseURL: API_BASE_URL });
 
