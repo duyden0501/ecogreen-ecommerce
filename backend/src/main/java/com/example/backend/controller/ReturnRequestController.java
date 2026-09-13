@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.backend.dto.ReturnResponse;
 import com.example.backend.entity.ReturnRequest;
 import com.example.backend.entity.User;
+import com.example.backend.exception.BadRequestException;
 import com.example.backend.security.AuthGuard;
 import com.example.backend.service.ReturnRequestService;
 
@@ -28,6 +29,7 @@ public class ReturnRequestController {
 
     @Autowired
     private ReturnRequestService returnService;
+
     @Autowired
     private AuthGuard authGuard;
 
@@ -39,15 +41,29 @@ public class ReturnRequestController {
             @RequestBody Map<String, String> body,
             HttpServletRequest request) {
         User user = authGuard.requireUser(request);
-        Long orderId = Long.valueOf(body.get("orderId"));
-        ReturnRequest rr;
-        rr = returnService.create(
+
+        if (body == null || body.get("orderId") == null || body.get("orderId").isBlank()) {
+            throw new BadRequestException("Mã đơn hàng không được để trống.");
+        }
+        if (body.get("reason") == null || body.get("reason").trim().isEmpty()) {
+            throw new BadRequestException("Vui lòng cung cấp lý do đổi/trả hàng.");
+        }
+
+        Long orderId;
+        try {
+            orderId = Long.parseLong(body.get("orderId").trim());
+        } catch (NumberFormatException e) {
+            throw new BadRequestException("Mã đơn hàng không hợp lệ: " + body.get("orderId"));
+        }
+
+        ReturnRequest rr = returnService.create(
                 user.getId(),
                 orderId,
-                body.get("reason"),
+                body.get("reason").trim(),
                 body.get("description"),
                 body.get("imageUrl")
         );
+
         return ResponseEntity.status(201).body(ReturnResponse.from(rr));
     }
 
