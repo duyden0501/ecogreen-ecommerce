@@ -158,20 +158,18 @@ const AdminDashboard = () => {
   };
 
   const tabLabel = {
-    const tabLabel = {
-      products: '📦 Quản lý Sản phẩm',
-      sales: 'Sales Dashboard',
-      categories: '🏷️ Quản lý Danh mục',
-      orders: '📜 Quản lý Đơn hàng',
-      returns: '♻️ Quản lý Đổi / Trả hàng (Chính sách 7 ngày)',
-      users: '👥 Quản lý Người dùng & Phân quyền',
-    }[activeTab];
+    products: '📦 Quản lý Sản phẩm',
+    sales: 'Sales Dashboard',
+    categories: '🏷️ Quản lý Danh mục',
+    orders: '📜 Quản lý Đơn hàng',
+    returns: '♻️ Quản lý Đổi / Trả hàng (Chính sách 7 ngày)',
+    users: '👥 Quản lý Người dùng & Phân quyền',
+  }[activeTab];
 
-    return(
-    <div style = {{ display: 'flex', minHeight: '100vh', backgroundColor: '#f0f2f5' }} >
-    {/* SIDEBAR */ }
-    < div style = {{ width: '270px', backgroundColor: '#1b3a1f', color: '#fff', padding: '20px 0', display: 'flex', flexDirection: 'column' }
-}>
+  return (
+    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f0f2f5' }}>
+      {/* SIDEBAR */}
+      <div style={{ width: '270px', backgroundColor: '#1b3a1f', color: '#fff', padding: '20px 0', display: 'flex', flexDirection: 'column' }}>
         <div style={{ padding: '0 20px 20px', borderBottom: '1px solid #2e5233', marginBottom: '20px' }}>
           <h2 style={{ fontSize: '1.25rem', margin: 0 }}>🌿 EcoGreen Admin</h2>
           <small style={{ color: '#a7f3d0' }}>Hệ thống quản trị bán hàng</small>
@@ -202,10 +200,10 @@ const AdminDashboard = () => {
           <span style={{ fontSize: '1.2rem' }}>👤</span>
           <span style={{ fontSize: '0.9rem', color: '#c8e6c9' }}>{user?.username} (Quản trị viên)</span>
         </div>
-      </ >
+      </div>
 
-  {/* MAIN */ }
-  < div style = {{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      {/* MAIN */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <div style={{ height: '70px', backgroundColor: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 30px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
           <h3 style={{ margin: 0, color: '#1b3a1f' }}>{tabLabel}</h3>
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
@@ -495,94 +493,90 @@ const AdminDashboard = () => {
             </>
           )}
         </div>
-      </div >
-
-  {/* PRODUCT MODAL */ }
-{
-  isProductModalOpen && (
-    <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-      <div style={{ backgroundColor: '#fff', padding: '30px', borderRadius: '12px', width: '520px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 8px 30px rgba(0,0,0,0.2)' }}>
-        <h3 style={{ color: '#1b3a1f', marginTop: 0 }}>{isEditProduct ? '✏️ Chỉnh sửa sản phẩm' : '➕ Thêm sản phẩm mới'}</h3>
-        <form onSubmit={handleProductSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          <div>
-            <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: '5px' }}>Tên sản phẩm *</label>
-            <input type="text" placeholder="Ví dụ: Balo Vải Đay Tự Nhiên" value={currentProduct.name} onChange={e => setCurrentProduct({ ...currentProduct, name: e.target.value })} required style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
-          </div>
-
-          <div>
-            <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: '5px' }}>Danh mục sản phẩm *</label>
-            <select value={currentProduct.categoryId} onChange={e => setCurrentProduct({ ...currentProduct, categoryId: e.target.value })} required style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
-              <option value="">-- Chọn danh mục --</option>
-              {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: '5px' }}>Giá bán (₫) *</label>
-              <input type="number" step="1000" placeholder="150000" value={currentProduct.price} onChange={e => setCurrentProduct({ ...currentProduct, price: e.target.value })} required style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
-            </div>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: '5px' }}>Tồn kho *</label>
-              <input type="number" placeholder="50" value={currentProduct.stockQuantity} onChange={e => setCurrentProduct({ ...currentProduct, stockQuantity: parseInt(e.target.value) || 0 })} required style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
-            </div>
-          </div>
-
-          <div>
-            <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: '5px' }}>Hình ảnh (URL hoặc tên file trong assets/products)</label>
-            <input type="text" placeholder="https://... hoặc ten-anh.jpg" value={currentProduct.image || ''} onChange={e => setCurrentProduct({ ...currentProduct, image: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
-          </div>
-
-          <div>
-            <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: '5px' }}>Mô tả sản phẩm</label>
-            <textarea placeholder="Mô tả chất liệu tái chế, nguồn gốc xuất xứ, đặc tính sinh thái..." rows={3} value={currentProduct.description || ''} onChange={e => setCurrentProduct({ ...currentProduct, description: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box', fontFamily: 'inherit' }} />
-          </div>
-
-          {isEditProduct && (
-            <div>
-              <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: '5px' }}>Trạng thái kinh doanh</label>
-              <select value={currentProduct.status} onChange={e => setCurrentProduct({ ...currentProduct, status: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
-                <option value="ACTIVE">Đang kinh doanh (ACTIVE)</option>
-                <option value="INACTIVE">Ngừng kinh doanh (INACTIVE)</option>
-              </select>
-            </div>
-          )}
-
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
-            <button type="button" onClick={() => setIsProductModalOpen(false)} style={{ padding: '10px 18px', border: '1px solid #cbd5e1', background: 'transparent', borderRadius: '6px', cursor: 'pointer' }}>Hủy</button>
-            <button type="submit" style={{ backgroundColor: '#2e7d32', color: '#fff', border: 'none', padding: '10px 22px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>Lưu sản phẩm</button>
-          </div>
-        </form>
       </div>
-    </div>
-  )
-}
 
-{/* CATEGORY MODAL */ }
-{
-  isCategoryModalOpen && (
-    <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-      <div style={{ backgroundColor: '#fff', padding: '30px', borderRadius: '12px', width: '460px', boxShadow: '0 8px 30px rgba(0,0,0,0.2)' }}>
-        <h3 style={{ color: '#1b3a1f', marginTop: 0 }}>{isEditCategory ? '✏️ Chỉnh sửa danh mục' : '➕ Thêm danh mục mới'}</h3>
-        <form onSubmit={handleCategorySubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          <div>
-            <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: '5px' }}>Tên danh mục *</label>
-            <input type="text" placeholder="Ví dụ: Thời Trang & Phụ Kiện Xanh" value={currentCategory.name} onChange={e => setCurrentCategory({ ...currentCategory, name: e.target.value })} required style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
+      {/* PRODUCT MODAL */}
+      {isProductModalOpen && (
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+          <div style={{ backgroundColor: '#fff', padding: '30px', borderRadius: '12px', width: '520px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 8px 30px rgba(0,0,0,0.2)' }}>
+            <h3 style={{ color: '#1b3a1f', marginTop: 0 }}>{isEditProduct ? '✏️ Chỉnh sửa sản phẩm' : '➕ Thêm sản phẩm mới'}</h3>
+            <form onSubmit={handleProductSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: '5px' }}>Tên sản phẩm *</label>
+                <input type="text" placeholder="Ví dụ: Balo Vải Đay Tự Nhiên" value={currentProduct.name} onChange={e => setCurrentProduct({ ...currentProduct, name: e.target.value })} required style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: '5px' }}>Danh mục sản phẩm *</label>
+                <select value={currentProduct.categoryId} onChange={e => setCurrentProduct({ ...currentProduct, categoryId: e.target.value })} required style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+                  <option value="">-- Chọn danh mục --</option>
+                  {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: '5px' }}>Giá bán (₫) *</label>
+                  <input type="number" step="1000" placeholder="150000" value={currentProduct.price} onChange={e => setCurrentProduct({ ...currentProduct, price: e.target.value })} required style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: '5px' }}>Tồn kho *</label>
+                  <input type="number" placeholder="50" value={currentProduct.stockQuantity} onChange={e => setCurrentProduct({ ...currentProduct, stockQuantity: parseInt(e.target.value) || 0 })} required style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: '5px' }}>Hình ảnh (URL hoặc tên file trong assets/products)</label>
+                <input type="text" placeholder="https://... hoặc ten-anh.jpg" value={currentProduct.image || ''} onChange={e => setCurrentProduct({ ...currentProduct, image: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: '5px' }}>Mô tả sản phẩm</label>
+                <textarea placeholder="Mô tả chất liệu tái chế, nguồn gốc xuất xứ, đặc tính sinh thái..." rows={3} value={currentProduct.description || ''} onChange={e => setCurrentProduct({ ...currentProduct, description: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box', fontFamily: 'inherit' }} />
+              </div>
+
+              {isEditProduct && (
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: '5px' }}>Trạng thái kinh doanh</label>
+                  <select value={currentProduct.status} onChange={e => setCurrentProduct({ ...currentProduct, status: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+                    <option value="ACTIVE">Đang kinh doanh (ACTIVE)</option>
+                    <option value="INACTIVE">Ngừng kinh doanh (INACTIVE)</option>
+                  </select>
+                </div>
+              )}
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+                <button type="button" onClick={() => setIsProductModalOpen(false)} style={{ padding: '10px 18px', border: '1px solid #cbd5e1', background: 'transparent', borderRadius: '6px', cursor: 'pointer' }}>Hủy</button>
+                <button type="submit" style={{ backgroundColor: '#2e7d32', color: '#fff', border: 'none', padding: '10px 22px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>Lưu sản phẩm</button>
+              </div>
+            </form>
           </div>
-          <div>
-            <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: '5px' }}>Mô tả danh mục</label>
-            <textarea placeholder="Mô tả về nhóm sản phẩm sinh thái trong danh mục này..." rows={3} value={currentCategory.description || ''} onChange={e => setCurrentCategory({ ...currentCategory, description: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box', fontFamily: 'inherit' }} />
+        </div>
+      )}
+
+      {/* CATEGORY MODAL */}
+      {isCategoryModalOpen && (
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+          <div style={{ backgroundColor: '#fff', padding: '30px', borderRadius: '12px', width: '460px', boxShadow: '0 8px 30px rgba(0,0,0,0.2)' }}>
+            <h3 style={{ color: '#1b3a1f', marginTop: 0 }}>{isEditCategory ? '✏️ Chỉnh sửa danh mục' : '➕ Thêm danh mục mới'}</h3>
+            <form onSubmit={handleCategorySubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: '5px' }}>Tên danh mục *</label>
+                <input type="text" placeholder="Ví dụ: Thời Trang & Phụ Kiện Xanh" value={currentCategory.name} onChange={e => setCurrentCategory({ ...currentCategory, name: e.target.value })} required style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: '5px' }}>Mô tả danh mục</label>
+                <textarea placeholder="Mô tả về nhóm sản phẩm sinh thái trong danh mục này..." rows={3} value={currentCategory.description || ''} onChange={e => setCurrentCategory({ ...currentCategory, description: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box', fontFamily: 'inherit' }} />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+                <button type="button" onClick={() => setIsCategoryModalOpen(false)} style={{ padding: '10px 18px', border: '1px solid #cbd5e1', background: 'transparent', borderRadius: '6px', cursor: 'pointer' }}>Hủy</button>
+                <button type="submit" style={{ backgroundColor: '#2e7d32', color: '#fff', border: 'none', padding: '10px 22px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>Lưu danh mục</button>
+              </div>
+            </form>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
-            <button type="button" onClick={() => setIsCategoryModalOpen(false)} style={{ padding: '10px 18px', border: '1px solid #cbd5e1', background: 'transparent', borderRadius: '6px', cursor: 'pointer' }}>Hủy</button>
-            <button type="submit" style={{ backgroundColor: '#2e7d32', color: '#fff', border: 'none', padding: '10px 22px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>Lưu danh mục</button>
-          </div>
-        </form>
-      </div>
+        </div>
+      )}
     </div>
-  )
-}
-    </div >
   );
 };
 
