@@ -51,7 +51,7 @@ public class ReturnRequestController {
 
         Long orderId;
         try {
-            orderId = Long.parseLong(body.get("orderId").trim());
+            orderId = Long.valueOf(body.get("orderId").trim());
         } catch (NumberFormatException e) {
             throw new BadRequestException("Mã đơn hàng không hợp lệ: " + body.get("orderId"));
         }
