@@ -1,0 +1,457 @@
+/* ============================================================
+   Admin Dashboard layout - extracted from inline styles (V6 Part 3).
+   Reuses the EcoGreen palette (--primary-color, --danger-color, etc. from
+   index.css) - no new hard-coded colors outside that palette.
+   ============================================================ */
+
+.admin-shell {
+    display: flex;
+    min-height: 100vh;
+    /* fallback for browsers without dvh support */
+    min-height: 100dvh;
+    background-color: var(--secondary-color);
+}
+
+/* ---- Sidebar ---- */
+.admin-sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    background-color: #1b3a1f;
+    color: #fff;
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-sidebar-header {
+    padding: 0 20px 20px;
+    border-bottom: 1px solid #2e5233;
+    margin-bottom: 20px;
+}
+
+.admin-sidebar-header h2 {
+    font-size: 1.2rem;
+    margin: 0;
+}
+
+.admin-sidebar-nav {
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-nav-btn {
+    padding: 15px 20px;
+    text-align: left;
+    background-color: transparent;
+    color: #fff;
+    border: none;
+    border-left: 4px solid transparent;
+    cursor: pointer;
+    font-size: 1rem;
+    white-space: nowrap;
+    transition: var(--transition);
+}
+
+.admin-nav-btn-active {
+    background-color: #2e5233;
+    border-left-color: var(--accent-color);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .admin-nav-btn:hover:not(.admin-nav-btn-active) {
+        background-color: rgba(255, 255, 255, 0.06);
+    }
+}
+
+.admin-sidebar-footer {
+    margin-top: auto;
+    padding: 20px;
+    border-top: 1px solid #2e5233;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-sidebar-footer-icon {
+    font-size: 1.2rem;
+}
+
+.admin-sidebar-footer-name {
+    font-size: 0.9rem;
+    color: #c8e6c9;
+}
+
+/* ---- Main column ---- */
+.admin-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    /* allow horizontally-scrollable tables to shrink inside flex */
+}
+
+.admin-topbar {
+    height: 70px;
+    flex-shrink: 0;
+    background-color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.admin-topbar h3 {
+    margin: 0;
+    color: var(--text-color);
+}
+
+.admin-topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.admin-btn-danger-outline {
+    padding: 8px 15px;
+    color: var(--danger-color);
+    border: 1px solid var(--danger-color);
+    border-radius: 8px;
+    background-color: transparent;
+    cursor: pointer;
+    font-weight: 700;
+    font-family: inherit;
+    transition: var(--transition);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .admin-btn-danger-outline:hover {
+        background-color: #FBE4E1;
+    }
+}
+
+.admin-content {
+    padding: 30px;
+    overflow-y: auto;
+}
+
+.admin-error-text {
+    color: var(--danger-color);
+    margin-bottom: 16px;
+}
+
+.admin-loading {
+    padding: 20px;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+/* ---- Panels / tables shared by products, categories, orders, users ---- */
+.admin-panel {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.admin-panel-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.admin-panel-toolbar-end {
+    justify-content: flex-end;
+}
+
+.admin-search-input {
+    padding: 10px 14px;
+    width: 300px;
+    max-width: 100%;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    font-size: 16px;
+    /* prevents iOS auto-zoom */
+    font-family: inherit;
+}
+
+.admin-search-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.admin-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.admin-table {
+    width: 100%;
+    min-width: 640px;
+    border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 12px;
+    text-align: left;
+}
+
+.admin-table thead tr {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #eee;
+}
+
+.admin-table tbody tr {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.admin-col-center {
+    text-align: center;
+}
+
+.admin-cell-strong {
+    font-weight: 600;
+}
+
+.admin-cell-muted {
+    color: var(--text-secondary);
+}
+
+.admin-cell-price {
+    color: var(--success-color);
+    font-weight: 700;
+}
+
+.admin-thumb {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.admin-empty {
+    padding: 20px;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.admin-status-select {
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    font-family: inherit;
+}
+
+.admin-link-btn {
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.95rem;
+    margin-right: 10px;
+    padding: 0;
+}
+
+.admin-link-btn:last-child {
+    margin-right: 0;
+}
+
+.admin-link-btn-primary {
+    color: var(--primary-color);
+}
+
+.admin-link-btn-danger {
+    color: var(--danger-color);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .admin-link-btn:hover {
+        text-decoration: underline;
+    }
+}
+
+/* Role badges (Users tab) - reuse the same blue/red already established by
+   .status-badge.status-confirmed / .status-cancelled in index.css, so no new
+   colors are introduced outside the EcoGreen palette. */
+.admin-role-badge {
+    display: inline-flex;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-right: 4px;
+}
+
+.admin-role-admin {
+    background-color: #FBE4E1;
+    color: var(--danger-color);
+}
+
+.admin-role-user {
+    background-color: #DCE9FB;
+    color: #1D5FA8;
+}
+
+/* ---- Modals ---- */
+.admin-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    z-index: 1000;
+}
+
+.admin-modal {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: var(--border-radius);
+    width: 500px;
+    max-width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.admin-modal-narrow {
+    width: 450px;
+}
+
+.admin-modal h3 {
+    margin: 0 0 16px;
+    color: var(--text-color);
+}
+
+.admin-modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.admin-modal-form input,
+.admin-modal-form select,
+.admin-modal-form textarea {
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    font-size: 16px;
+    /* prevents iOS auto-zoom */
+    font-family: inherit;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.admin-modal-form input:focus,
+.admin-modal-form select:focus,
+.admin-modal-form textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.admin-modal-form textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+.admin-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* ============================================================
+   Responsive breakpoints.
+   Decision (based on reading the code, NOT yet confirmed with DevTools -
+   see MASTER_PROMPT_V6 3.5 / project report): the sidebar has 5 items with
+   icon + label text, which reading the markup above suggests starts
+   crowding the available width well before the standard 768px tablet
+   breakpoint. Switching to a horizontal tab bar under 900px keeps every
+   label readable without wrapping or truncation.
+   ============================================================ */
+
+/* iPad-range tuning: slightly tighter spacing while still in the
+   sidebar layout (900px is above this range, so on iPad portrait/landscape
+   the sidebar is still visible here - this only trims padding). */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .admin-sidebar {
+        width: 220px;
+    }
+
+    .admin-content {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 900px) {
+    .admin-shell {
+        flex-direction: column;
+    }
+
+    .admin-sidebar {
+        width: 100%;
+        flex-direction: row;
+        align-items: center;
+        padding: 10px 0;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .admin-sidebar-header {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding: 0 12px;
+        flex-shrink: 0;
+    }
+
+    .admin-sidebar-header h2 {
+        font-size: 1rem;
+        white-space: nowrap;
+    }
+
+    .admin-sidebar-nav {
+        flex-direction: row;
+    }
+
+    .admin-nav-btn {
+        padding: 10px 14px;
+        border-left: none;
+        border-bottom: 3px solid transparent;
+    }
+
+    .admin-nav-btn-active {
+        border-left-color: transparent;
+        border-bottom-color: var(--accent-color);
+    }
+
+    .admin-sidebar-footer {
+        display: none;
+    }
+
+    .admin-topbar {
+        padding: 0 16px;
+    }
+
+    .admin-content {
+        padding: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-topbar h3 {
+        font-size: 1rem;
+    }
+
+    .admin-topbar-actions button {
+        padding: 8px 10px;
+        font-size: 0.85rem;
+    }
+
+    .admin-search-input {
+        width: 100%;
+    }
+}
