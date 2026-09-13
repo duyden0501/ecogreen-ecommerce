@@ -23,7 +23,7 @@ import com.example.backend.repository.RoleRepository;
 public class DataLoader {
 
     @Bean
-    CommandLineRunner initRoles(RoleRepository roleRepository) {
+    public CommandLineRunner initRoles(RoleRepository roleRepository) {
         return args -> {
             if (roleRepository.findByName(Role.USER).isEmpty()) {
                 roleRepository.save(new Role(null, Role.USER));
