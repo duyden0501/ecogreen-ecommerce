@@ -262,7 +262,7 @@
     }
     .banner-content { padding: 0 28px; max-width: 90%; }
     .banner-title { font-size: 1.7rem; }
-    .banner-subtitle { font-size: 0.85rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .banner-subtitle { font-size: 0.85rem; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .nav-btn { width: 38px; height: 38px; font-size: 0.9rem; }
 }
 

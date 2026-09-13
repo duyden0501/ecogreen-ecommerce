@@ -35,17 +35,17 @@ public class AuthService {
     @Transactional
     public User register(String username, String email, String password) {
         if (username == null || username.isBlank() || password == null || password.isBlank() || email == null || email.isBlank()) {
-            throw new BadRequestException("Username, email and password are required.");
+            throw new BadRequestException("Vui lòng nhập đầy đủ tên đăng nhập, email và mật khẩu.");
         }
         if (userRepository.existsByUsername(username)) {
-            throw new ConflictException("Username is already taken.");
+            throw new ConflictException("Tên đăng nhập này đã được sử dụng.");
         }
         if (userRepository.existsByEmail(email)) {
-            throw new ConflictException("Email is already in use.");
+            throw new ConflictException("Địa chỉ email này đã được đăng ký.");
         }
 
         Role userRole = roleRepository.findByName(Role.USER)
-                .orElseThrow(() -> new IllegalStateException("USER role missing - run database init script."));
+                .orElseThrow(() -> new IllegalStateException("Quyền USER không tồn tại trong hệ thống."));
 
         User user = new User();
         user.setUsername(username);
@@ -62,13 +62,13 @@ public class AuthService {
     /** Returns a fresh opaque bearer token for the given credentials. */
     public String login(String username, String password) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UnauthorizedException("Invalid username or password."));
+                .orElseThrow(() -> new UnauthorizedException("Tên đăng nhập hoặc mật khẩu không chính xác."));
 
         if (!user.isActive()) {
-            throw new UnauthorizedException("This account has been deactivated.");
+            throw new UnauthorizedException("Tài khoản này đã bị khóa. Vui lòng liên hệ quản trị viên.");
         }
         if (!passwordHasher.matches(password, user.getPassword())) {
-            throw new UnauthorizedException("Invalid username or password.");
+            throw new UnauthorizedException("Tên đăng nhập hoặc mật khẩu không chính xác.");
         }
         return tokenStore.issueToken(user.getId());
     }

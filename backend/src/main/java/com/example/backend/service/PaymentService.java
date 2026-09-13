@@ -25,7 +25,7 @@ public class PaymentService {
 
     public Payment getByOrderId(Long orderId) {
         return paymentRepository.findByOrderId(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Payment not found for order " + orderId));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thông tin thanh toán cho đơn hàng #" + orderId));
     }
 
     /**
@@ -38,7 +38,7 @@ public class PaymentService {
         Order order = payment.getOrder();
 
         if (order.getStatus() == Order.Status.CANCELLED) {
-            throw new BadRequestException("This order has been cancelled and cannot be paid.");
+            throw new BadRequestException("Đơn hàng này đã bị hủy, không thể tiếp tục thanh toán.");
         }
         if (payment.getStatus() == Payment.Status.SUCCESS) {
             return payment; // already paid - idempotent

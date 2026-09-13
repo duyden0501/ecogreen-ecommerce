@@ -85,7 +85,7 @@ const Navbar = ({ searchTerm, setSearchTerm }) => {
                   {(user.username || 'U').charAt(0).toUpperCase()}
                 </div>
                 <span className="user-name-label">{user.username}</span>
-                {isAdmin && <span className="admin-chip">Admin</span>}
+                {isAdmin && <span className="admin-chip">Quản trị viên</span>}
                 <span className={`dropdown-arrow ${dropdownOpen ? 'open' : ''}`}>▾</span>
               </button>
 
@@ -134,7 +134,7 @@ const Navbar = ({ searchTerm, setSearchTerm }) => {
                       onClick={() => setDropdownOpen(false)}
                     >
                       <span className="item-icon">⚙️</span>
-                      <span>Trang quản trị (Admin)</span>
+                      <span>Trang quản trị (Admin CMS)</span>
                     </Link>
                   )}
 

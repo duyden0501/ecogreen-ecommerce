@@ -26,7 +26,7 @@ const Home = ({ searchTerm }) => {
         setProducts(productsData || []);
         setCategories(categoriesData || []);
       } catch (err) {
-        setError(err.friendlyMessage || 'Could not load products right now.');
+        setError(err.friendlyMessage || 'Không thể tải danh sách sản phẩm lúc này. Vui lòng thử lại sau.');
       } finally {
         setLoading(false);
       }

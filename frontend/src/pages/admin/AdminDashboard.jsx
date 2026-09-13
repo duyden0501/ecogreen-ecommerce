@@ -15,10 +15,15 @@ import { resolveProductImage } from '../../utils/imageResolver';
 const emptyProduct = { name: '', price: '', image: '', description: '', stockQuantity: 0, categoryId: '', status: 'ACTIVE' };
 const emptyCategory = { name: '', description: '' };
 
+const STATUS_MAP = {
+  PENDING: { label: 'Chờ thanh toán', color: '#856404', bg: '#fff3cd' },
+  CONFIRMED: { label: 'Đã xác nhận', color: '#004085', bg: '#cce5ff' },
+  PAID: { label: 'Đã thanh toán', color: '#155724', bg: '#d4edda' },
+  CANCELLED: { label: 'Đã hủy', color: '#721c24', bg: '#f8d7da' },
+};
+
 /**
- * Admin CMS - products, categories, orders, users, returns.
- * The frontend hiding these tabs behind <ProtectedRoute adminOnly> is a UX
- * convenience only; every write here re-checks the ADMIN role on the backend.
+ * Admin CMS - Quản lý sản phẩm, danh mục, đơn hàng, người dùng, đổi trả hàng.
  */
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('products'); // products | categories | orders | returns | users
@@ -71,7 +76,7 @@ const AdminDashboard = () => {
         setReturns(await getAllReturns());
       }
     } catch (error) {
-      setErrorMsg(error.friendlyMessage || 'Could not load data.');
+      setErrorMsg(error.friendlyMessage || 'Không thể tải dữ liệu.');
     } finally {
       setLoading(false);
     }
@@ -79,8 +84,8 @@ const AdminDashboard = () => {
 
   // --- Products ---
   const handleDeleteProduct = async (id) => {
-    if (!window.confirm('Deactivate this product?')) return;
-    try { await deleteProduct(id); loadData(); } catch (e) { alert(e.friendlyMessage || 'Failed.'); }
+    if (!window.confirm('Bạn có chắc chắn muốn ngừng kinh doanh sản phẩm này?')) return;
+    try { await deleteProduct(id); loadData(); } catch (e) { alert(e.friendlyMessage || 'Thao tác thất bại.'); }
   };
 
   const handleProductSubmit = async (e) => {
@@ -100,14 +105,14 @@ const AdminDashboard = () => {
       setIsProductModalOpen(false);
       loadData();
     } catch (err) {
-      alert(err.friendlyMessage || 'Could not save product.');
+      alert(err.friendlyMessage || 'Không thể lưu thông tin sản phẩm.');
     }
   };
 
   // --- Categories ---
   const handleDeleteCategory = async (id) => {
-    if (!window.confirm('Delete this category? Products in it will be affected.')) return;
-    try { await deleteCategory(id); loadData(); } catch (e) { alert(e.friendlyMessage || 'Failed.'); }
+    if (!window.confirm('Bạn có chắc chắn muốn xóa danh mục này? Các sản phẩm thuộc danh mục sẽ bị ảnh hưởng.')) return;
+    try { await deleteCategory(id); loadData(); } catch (e) { alert(e.friendlyMessage || 'Thao tác thất bại.'); }
   };
 
   const handleCategorySubmit = async (e) => {
@@ -118,14 +123,14 @@ const AdminDashboard = () => {
       setIsCategoryModalOpen(false);
       loadData();
     } catch (err) {
-      alert(err.friendlyMessage || 'Could not save category.');
+      alert(err.friendlyMessage || 'Không thể lưu thông tin danh mục.');
     }
   };
 
   // --- Orders ---
   const handleUpdateStatus = async (orderId, newStatus) => {
     try { await updateOrderStatus(orderId, newStatus); loadData(); }
-    catch (e) { alert(e.friendlyMessage || 'Could not update status.'); }
+    catch (e) { alert(e.friendlyMessage || 'Không thể cập nhật trạng thái đơn hàng.'); }
   };
 
   // --- Returns ---
@@ -143,8 +148,8 @@ const AdminDashboard = () => {
 
   // --- Users ---
   const handleDeleteUser = async (id, name) => {
-    if (!window.confirm(`Delete account "${name}"?`)) return;
-    try { await deleteUser(id); loadData(); } catch (e) { alert(e.friendlyMessage || 'Failed.'); }
+    if (!window.confirm(`Bạn có chắc chắn muốn xóa tài khoản "${name}"?`)) return;
+    try { await deleteUser(id); loadData(); } catch (e) { alert(e.friendlyMessage || 'Thao tác thất bại.'); }
   };
 
   const handleLogout = () => {
@@ -153,20 +158,23 @@ const AdminDashboard = () => {
   };
 
   const tabLabel = {
-    products: 'Products',
-    sales: 'Sales Dashboard',
-    categories: 'Categories',
-    orders: 'Orders',
-    returns: 'Quản lý Đổi / Trả hàng (Returns & Refunds)',
-    users: 'Users',
-  }[activeTab];
+    const tabLabel = {
+      products: '📦 Quản lý Sản phẩm',
+      sales: 'Sales Dashboard',
+      categories: '🏷️ Quản lý Danh mục',
+      orders: '📜 Quản lý Đơn hàng',
+      returns: '♻️ Quản lý Đổi / Trả hàng (Chính sách 7 ngày)',
+      users: '👥 Quản lý Người dùng & Phân quyền',
+    }[activeTab];
 
-  return (
-    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f0f2f5' }}>
-      {/* SIDEBAR */}
-      <div style={{ width: '260px', backgroundColor: '#1b3a1f', color: '#fff', padding: '20px 0', display: 'flex', flexDirection: 'column' }}>
+    return(
+    <div style = {{ display: 'flex', minHeight: '100vh', backgroundColor: '#f0f2f5' }} >
+    {/* SIDEBAR */ }
+    < div style = {{ width: '270px', backgroundColor: '#1b3a1f', color: '#fff', padding: '20px 0', display: 'flex', flexDirection: 'column' }
+}>
         <div style={{ padding: '0 20px 20px', borderBottom: '1px solid #2e5233', marginBottom: '20px' }}>
-          <h2 style={{ fontSize: '1.2rem', margin: 0 }}>🌿 EcoGreen Admin</h2>
+          <h2 style={{ fontSize: '1.25rem', margin: 0 }}>🌿 EcoGreen Admin</h2>
+          <small style={{ color: '#a7f3d0' }}>Hệ thống quản trị bán hàng</small>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           {['products', 'sales', 'categories', 'orders', 'returns', 'users'].map((tab) => (
@@ -176,125 +184,136 @@ const AdminDashboard = () => {
               style={{
                 padding: '15px 20px', textAlign: 'left',
                 backgroundColor: activeTab === tab ? '#2e5233' : 'transparent',
-                color: '#fff', border: 'none', cursor: 'pointer', fontSize: '1rem',
+                color: '#fff', border: 'none', cursor: 'pointer', fontSize: '0.95rem',
                 borderLeft: activeTab === tab ? '4px solid #66bb6a' : '4px solid transparent',
+                fontWeight: activeTab === tab ? 'bold' : 'normal',
               }}
             >
-              {tab === 'products' && '📦 Products'}
+              {tab === 'products' && '📦 Quản lý Sản phẩm'}
               {tab === 'sales' && '📈 Sales Dashboard'}
-              {tab === 'categories' && '🏷️ Categories'}
-              {tab === 'orders' && '📜 Orders'}
+              {tab === 'categories' && '🏷️ Quản lý Danh mục'}
+              {tab === 'orders' && '📜 Quản lý Đơn hàng'}
               {tab === 'returns' && '♻️ Đổi / Trả hàng'}
-              {tab === 'users' && '👥 Users'}
+              {tab === 'users' && '👥 Quản lý Người dùng'}
             </button>
           ))}
         </div>
         <div style={{ marginTop: 'auto', padding: '20px', borderTop: '1px solid #2e5233', display: 'flex', alignItems: 'center', gap: '10px' }}>
           <span style={{ fontSize: '1.2rem' }}>👤</span>
-          <span style={{ fontSize: '0.9rem', color: '#c8e6c9' }}>{user?.username} (Admin)</span>
+          <span style={{ fontSize: '0.9rem', color: '#c8e6c9' }}>{user?.username} (Quản trị viên)</span>
         </div>
-      </div>
+      </div >
 
-      {/* MAIN */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+  {/* MAIN */ }
+  < div style = {{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <div style={{ height: '70px', backgroundColor: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 30px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
-          <h3 style={{ margin: 0, color: '#333' }}>{tabLabel}</h3>
+          <h3 style={{ margin: 0, color: '#1b3a1f' }}>{tabLabel}</h3>
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-            <button onClick={() => navigate('/')} style={{ padding: '8px 15px', backgroundColor: '#2e7d32', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>🏠 Storefront</button>
-            <button onClick={handleLogout} style={{ padding: '8px 15px', color: '#c62828', border: '1px solid #c62828', borderRadius: '5px', backgroundColor: 'transparent', cursor: 'pointer', fontWeight: 'bold' }}>Log out</button>
+            <button onClick={() => navigate('/')} style={{ padding: '8px 16px', backgroundColor: '#2e7d32', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>🏠 Xem cửa hàng</button>
+            <button onClick={handleLogout} style={{ padding: '8px 16px', color: '#c62828', border: '1px solid #c62828', borderRadius: '5px', backgroundColor: 'transparent', cursor: 'pointer', fontWeight: 'bold' }}>Đăng xuất</button>
           </div>
         </div>
 
         <div style={{ padding: '30px', overflowY: 'auto' }}>
           {activeTab !== 'sales' && <AdminStats />}
 
-          {errorMsg && <p style={{ color: '#c62828' }}>{errorMsg}</p>}
+          {errorMsg && <p style={{ color: '#c62828', backgroundColor: '#fde8e8', padding: '10px 14px', borderRadius: '6px' }}>{errorMsg}</p>}
 
           {activeTab === 'sales' ? (
             <SalesDashboard />
           ) : loading ? (
-            <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>
+            <div style={{ padding: '30px', textAlign: 'center', color: '#64748b' }}>Đang tải dữ liệu...</div>
           ) : (
             <>
+              {/* TAB 1: SẢN PHẨM */}
               {activeTab === 'products' && (
                 <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
                     <input
-                      type="text" placeholder="Search products..." value={searchTerm}
+                      type="text" placeholder="Tìm kiếm sản phẩm theo tên..." value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      style={{ padding: '10px', width: '300px', borderRadius: '5px', border: '1px solid #ddd' }}
+                      style={{ padding: '10px 14px', width: '320px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
                     />
                     <button
                       onClick={() => { setIsEditProduct(false); setCurrentProduct(emptyProduct); setIsProductModalOpen(true); }}
-                      style={{ padding: '10px 20px', backgroundColor: '#2e7d32', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}
+                      style={{ padding: '10px 20px', backgroundColor: '#2e7d32', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
                     >
-                      + Add product
+                      + Thêm sản phẩm mới
                     </button>
                   </div>
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
                       <tr style={{ backgroundColor: '#f8f9fa', textAlign: 'left', borderBottom: '2px solid #eee' }}>
-                        <th style={{ padding: '12px' }}>Image</th>
-                        <th style={{ padding: '12px' }}>Name</th>
-                        <th style={{ padding: '12px' }}>Category</th>
-                        <th style={{ padding: '12px' }}>Price</th>
-                        <th style={{ padding: '12px' }}>Stock</th>
-                        <th style={{ padding: '12px' }}>Status</th>
-                        <th style={{ padding: '12px', textAlign: 'center' }}>Actions</th>
+                        <th style={{ padding: '12px' }}>Hình ảnh</th>
+                        <th style={{ padding: '12px' }}>Tên sản phẩm</th>
+                        <th style={{ padding: '12px' }}>Danh mục</th>
+                        <th style={{ padding: '12px' }}>Giá bán</th>
+                        <th style={{ padding: '12px' }}>Tồn kho</th>
+                        <th style={{ padding: '12px' }}>Trạng thái</th>
+                        <th style={{ padding: '12px', textAlign: 'center' }}>Thao tác</th>
                       </tr>
                     </thead>
                     <tbody>
                       {products.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase())).map(p => (
                         <tr key={p.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
                           <td style={{ padding: '12px' }}>
-                            <img src={resolveProductImage(p.image)} alt="" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
+                            <img src={resolveProductImage(p.image)} alt="" style={{ width: '45px', height: '45px', objectFit: 'cover', borderRadius: '6px' }} />
                           </td>
                           <td style={{ padding: '12px', fontWeight: '500' }}>{p.name}</td>
                           <td style={{ padding: '12px' }}>{p.categoryName}</td>
-                          <td style={{ padding: '12px', color: '#2e7d32' }}>{new Intl.NumberFormat('vi-VN').format(p.price)}₫</td>
+                          <td style={{ padding: '12px', color: '#2e7d32', fontWeight: 600 }}>{Number(p.price).toLocaleString('vi-VN')} ₫</td>
                           <td style={{ padding: '12px' }}>
                             <span style={{
-                              padding: '4px 8px', borderRadius: '4px',
+                              padding: '4px 10px', borderRadius: '4px',
                               backgroundColor: p.stockQuantity > 10 ? '#d4edda' : p.stockQuantity > 0 ? '#fff3cd' : '#f8d7da',
                               color: p.stockQuantity > 10 ? '#155724' : p.stockQuantity > 0 ? '#856404' : '#721c24',
-                              fontWeight: 'bold',
+                              fontWeight: 'bold', fontSize: '0.85rem'
                             }}>
                               {p.stockQuantity}
                             </span>
                           </td>
-                          <td style={{ padding: '12px' }}>{p.status}</td>
+                          <td style={{ padding: '12px' }}>
+                            <span style={{
+                              padding: '3px 8px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 600,
+                              backgroundColor: p.status === 'ACTIVE' ? '#e8f5e9' : '#f5f5f5',
+                              color: p.status === 'ACTIVE' ? '#2e7d32' : '#757575'
+                            }}>
+                              {p.status === 'ACTIVE' ? 'Đang kinh doanh' : 'Ngừng bán'}
+                            </span>
+                          </td>
                           <td style={{ padding: '12px', textAlign: 'center' }}>
                             <button onClick={() => {
                               setIsEditProduct(true);
                               setCurrentProduct({ ...p, categoryId: p.categoryId });
                               setIsProductModalOpen(true);
-                            }} style={{ marginRight: '10px', color: '#1976d2', border: 'none', background: 'none', cursor: 'pointer' }}>Edit</button>
-                            <button onClick={() => handleDeleteProduct(p.id)} style={{ color: '#c62828', border: 'none', background: 'none', cursor: 'pointer' }}>Deactivate</button>
+                            }} style={{ marginRight: '10px', color: '#1976d2', border: 'none', background: 'none', cursor: 'pointer', fontWeight: 600 }}>Sửa</button>
+                            <button onClick={() => handleDeleteProduct(p.id)} style={{ color: '#c62828', border: 'none', background: 'none', cursor: 'pointer', fontWeight: 600 }}>Ngừng bán</button>
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
-                  {products.length === 0 && <p style={{ padding: '20px', textAlign: 'center', color: '#888' }}>No products yet. Add your first one above.</p>}
+                  {products.length === 0 && <p style={{ padding: '30px', textAlign: 'center', color: '#888' }}>Chưa có sản phẩm nào. Hãy bấm thêm sản phẩm mới ở trên.</p>}
                 </div>
               )}
 
+              {/* TAB 2: DANH MỤC */}
               {activeTab === 'categories' && (
                 <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
                   <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
                     <button
                       onClick={() => { setIsEditCategory(false); setCurrentCategory(emptyCategory); setIsCategoryModalOpen(true); }}
-                      style={{ padding: '10px 20px', backgroundColor: '#2e7d32', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}
+                      style={{ padding: '10px 20px', backgroundColor: '#2e7d32', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
                     >
-                      + Add category
+                      + Thêm danh mục mới
                     </button>
                   </div>
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
                       <tr style={{ backgroundColor: '#f8f9fa', textAlign: 'left', borderBottom: '2px solid #eee' }}>
-                        <th style={{ padding: '12px' }}>Name</th>
-                        <th style={{ padding: '12px' }}>Description</th>
-                        <th style={{ padding: '12px', textAlign: 'center' }}>Actions</th>
+                        <th style={{ padding: '12px' }}>Tên danh mục</th>
+                        <th style={{ padding: '12px' }}>Mô tả</th>
+                        <th style={{ padding: '12px', textAlign: 'center' }}>Thao tác</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -303,72 +322,77 @@ const AdminDashboard = () => {
                           <td style={{ padding: '12px', fontWeight: '500' }}>{c.name}</td>
                           <td style={{ padding: '12px', color: '#666' }}>{c.description}</td>
                           <td style={{ padding: '12px', textAlign: 'center' }}>
-                            <button onClick={() => { setIsEditCategory(true); setCurrentCategory(c); setIsCategoryModalOpen(true); }} style={{ marginRight: '10px', color: '#1976d2', border: 'none', background: 'none', cursor: 'pointer' }}>Edit</button>
-                            <button onClick={() => handleDeleteCategory(c.id)} style={{ color: '#c62828', border: 'none', background: 'none', cursor: 'pointer' }}>Delete</button>
+                            <button onClick={() => { setIsEditCategory(true); setCurrentCategory(c); setIsCategoryModalOpen(true); }} style={{ marginRight: '10px', color: '#1976d2', border: 'none', background: 'none', cursor: 'pointer', fontWeight: 600 }}>Sửa</button>
+                            <button onClick={() => handleDeleteCategory(c.id)} style={{ color: '#c62828', border: 'none', background: 'none', cursor: 'pointer', fontWeight: 600 }}>Xóa</button>
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
-                  {categories.length === 0 && <p style={{ padding: '20px', textAlign: 'center', color: '#888' }}>No categories yet. Add your first one above.</p>}
+                  {categories.length === 0 && <p style={{ padding: '30px', textAlign: 'center', color: '#888' }}>Chưa có danh mục nào. Hãy bấm thêm danh mục mới ở trên.</p>}
                 </div>
               )}
 
+              {/* TAB 3: ĐƠN HÀNG */}
               {activeTab === 'orders' && (
                 <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
                       <tr style={{ backgroundColor: '#f8f9fa', textAlign: 'left', borderBottom: '2px solid #eee' }}>
-                        <th style={{ padding: '12px' }}>Order</th>
-                        <th style={{ padding: '12px' }}>Customer</th>
-                        <th style={{ padding: '12px' }}>Date</th>
-                        <th style={{ padding: '12px' }}>Total</th>
-                        <th style={{ padding: '12px' }}>Status</th>
-                        <th style={{ padding: '12px', textAlign: 'center' }}>Update</th>
+                        <th style={{ padding: '12px' }}>Mã ĐH</th>
+                        <th style={{ padding: '12px' }}>Khách hàng</th>
+                        <th style={{ padding: '12px' }}>Ngày đặt</th>
+                        <th style={{ padding: '12px' }}>Tổng tiền</th>
+                        <th style={{ padding: '12px' }}>Trạng thái</th>
+                        <th style={{ padding: '12px', textAlign: 'center' }}>Cập nhật trạng thái</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {orders.map(o => (
-                        <tr key={o.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
-                          <td style={{ padding: '12px', fontWeight: 'bold' }}>#{o.id}</td>
-                          <td style={{ padding: '12px' }}>{o.customerName}</td>
-                          <td style={{ padding: '12px' }}>{new Date(o.createdAt).toLocaleString('vi-VN')}</td>
-                          <td style={{ padding: '12px', color: '#2e7d32', fontWeight: 'bold' }}>{new Intl.NumberFormat('vi-VN').format(o.totalPrice)}₫</td>
-                          <td style={{ padding: '12px' }}>
-                            <span style={{ padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem', backgroundColor: o.status === 'PENDING' ? '#fff3cd' : o.status === 'CANCELLED' ? '#f8d7da' : '#d4edda', color: o.status === 'PENDING' ? '#856404' : o.status === 'CANCELLED' ? '#721c24' : '#155724' }}>
-                              {o.status}
-                            </span>
-                          </td>
-                          <td style={{ padding: '12px', textAlign: 'center' }}>
-                            <select
-                              value={o.status}
-                              onChange={(e) => handleUpdateStatus(o.id, e.target.value)}
-                              style={{ padding: '5px', borderRadius: '4px', border: '1px solid #ddd' }}
-                            >
-                              <option value="PENDING">Pending</option>
-                              <option value="CONFIRMED">Confirmed</option>
-                              <option value="PAID">Paid</option>
-                              <option value="CANCELLED">Cancelled</option>
-                            </select>
-                          </td>
-                        </tr>
-                      ))}
+                      {orders.map(o => {
+                        const sInfo = STATUS_MAP[o.status] || { label: o.status, color: '#333', bg: '#f1f5f9' };
+                        return (
+                          <tr key={o.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
+                            <td style={{ padding: '12px', fontWeight: 'bold' }}>#{o.id}</td>
+                            <td style={{ padding: '12px' }}>{o.customerName}</td>
+                            <td style={{ padding: '12px' }}>{new Date(o.createdAt).toLocaleString('vi-VN')}</td>
+                            <td style={{ padding: '12px', color: '#2e7d32', fontWeight: 'bold' }}>{Number(o.totalPrice).toLocaleString('vi-VN')} ₫</td>
+                            <td style={{ padding: '12px' }}>
+                              <span style={{ padding: '4px 10px', borderRadius: '12px', fontSize: '0.82rem', fontWeight: 600, backgroundColor: sInfo.bg, color: sInfo.color }}>
+                                {sInfo.label}
+                              </span>
+                            </td>
+                            <td style={{ padding: '12px', textAlign: 'center' }}>
+                              <select
+                                value={o.status}
+                                onChange={(e) => handleUpdateStatus(o.id, e.target.value)}
+                                style={{ padding: '6px 10px', borderRadius: '4px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
+                              >
+                                <option value="PENDING">Chờ thanh toán (PENDING)</option>
+                                <option value="CONFIRMED">Đã xác nhận (CONFIRMED)</option>
+                                <option value="PAID">Đã thanh toán (PAID)</option>
+                                <option value="CANCELLED">Đã hủy (CANCELLED)</option>
+                              </select>
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
-                  {orders.length === 0 && <p style={{ padding: '20px', textAlign: 'center', color: '#888' }}>No orders yet.</p>}
+                  {orders.length === 0 && <p style={{ padding: '30px', textAlign: 'center', color: '#888' }}>Chưa có đơn hàng nào.</p>}
                 </div>
               )}
 
+              {/* TAB 4: NGƯỜI DÙNG */}
               {activeTab === 'users' && (
                 <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
                       <tr style={{ backgroundColor: '#f8f9fa', textAlign: 'left', borderBottom: '2px solid #eee' }}>
-                        <th style={{ padding: '12px' }}>ID</th>
-                        <th style={{ padding: '12px' }}>Username</th>
+                        <th style={{ padding: '12px' }}>Mã ND</th>
+                        <th style={{ padding: '12px' }}>Tên tài khoản</th>
                         <th style={{ padding: '12px' }}>Email</th>
-                        <th style={{ padding: '12px' }}>Roles</th>
-                        <th style={{ padding: '12px', textAlign: 'center' }}>Actions</th>
+                        <th style={{ padding: '12px' }}>Quyền / Vai trò</th>
+                        <th style={{ padding: '12px', textAlign: 'center' }}>Thao tác</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -379,24 +403,25 @@ const AdminDashboard = () => {
                           <td style={{ padding: '12px' }}>{u.email}</td>
                           <td style={{ padding: '12px' }}>
                             {u.roles.map(r => (
-                              <span key={r} style={{ padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem', backgroundColor: r === 'ADMIN' ? '#c62828' : '#1976d2', color: '#fff', marginRight: '4px' }}>
-                                {r}
+                              <span key={r} style={{ padding: '4px 8px', borderRadius: '4px', fontSize: '0.82rem', backgroundColor: r === 'ADMIN' ? '#c62828' : '#1976d2', color: '#fff', marginRight: '4px', fontWeight: 600 }}>
+                                {r === 'ADMIN' ? 'Quản trị viên' : 'Khách hàng'}
                               </span>
                             ))}
                           </td>
                           <td style={{ padding: '12px', textAlign: 'center' }}>
                             {!u.roles.includes('ADMIN') && (
-                              <button onClick={() => handleDeleteUser(u.id, u.username)} style={{ color: '#c62828', border: 'none', background: 'none', cursor: 'pointer' }}>Delete</button>
+                              <button onClick={() => handleDeleteUser(u.id, u.username)} style={{ color: '#c62828', border: 'none', background: 'none', cursor: 'pointer', fontWeight: 600 }}>Xóa</button>
                             )}
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
-                  {users.length === 0 && <p style={{ padding: '20px', textAlign: 'center', color: '#888' }}>No users yet.</p>}
+                  {users.length === 0 && <p style={{ padding: '30px', textAlign: 'center', color: '#888' }}>Chưa có người dùng nào.</p>}
                 </div>
               )}
 
+              {/* TAB 5: ĐỔI TRẢ HÀNG */}
               {activeTab === 'returns' && (
                 <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
                   <div style={{ marginBottom: '16px' }}>
@@ -470,55 +495,94 @@ const AdminDashboard = () => {
             </>
           )}
         </div>
-      </div>
+      </div >
 
-      {/* PRODUCT MODAL */}
-      {isProductModalOpen && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-          <div style={{ backgroundColor: '#fff', padding: '30px', borderRadius: '10px', width: '500px', maxHeight: '90vh', overflowY: 'auto' }}>
-            <h3>{isEditProduct ? 'Edit product' : 'Add product'}</h3>
-            <form onSubmit={handleProductSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-              <input type="text" placeholder="Name" value={currentProduct.name} onChange={e => setCurrentProduct({ ...currentProduct, name: e.target.value })} required style={{ padding: '10px' }} />
-              <select value={currentProduct.categoryId} onChange={e => setCurrentProduct({ ...currentProduct, categoryId: e.target.value })} required style={{ padding: '10px' }}>
-                <option value="">Select a category</option>
-                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+  {/* PRODUCT MODAL */ }
+{
+  isProductModalOpen && (
+    <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+      <div style={{ backgroundColor: '#fff', padding: '30px', borderRadius: '12px', width: '520px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 8px 30px rgba(0,0,0,0.2)' }}>
+        <h3 style={{ color: '#1b3a1f', marginTop: 0 }}>{isEditProduct ? '✏️ Chỉnh sửa sản phẩm' : '➕ Thêm sản phẩm mới'}</h3>
+        <form onSubmit={handleProductSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: '5px' }}>Tên sản phẩm *</label>
+            <input type="text" placeholder="Ví dụ: Balo Vải Đay Tự Nhiên" value={currentProduct.name} onChange={e => setCurrentProduct({ ...currentProduct, name: e.target.value })} required style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
+          </div>
+
+          <div>
+            <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: '5px' }}>Danh mục sản phẩm *</label>
+            <select value={currentProduct.categoryId} onChange={e => setCurrentProduct({ ...currentProduct, categoryId: e.target.value })} required style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+              <option value="">-- Chọn danh mục --</option>
+              {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: '5px' }}>Giá bán (₫) *</label>
+              <input type="number" step="1000" placeholder="150000" value={currentProduct.price} onChange={e => setCurrentProduct({ ...currentProduct, price: e.target.value })} required style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: '5px' }}>Tồn kho *</label>
+              <input type="number" placeholder="50" value={currentProduct.stockQuantity} onChange={e => setCurrentProduct({ ...currentProduct, stockQuantity: parseInt(e.target.value) || 0 })} required style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
+            </div>
+          </div>
+
+          <div>
+            <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: '5px' }}>Hình ảnh (URL hoặc tên file trong assets/products)</label>
+            <input type="text" placeholder="https://... hoặc ten-anh.jpg" value={currentProduct.image || ''} onChange={e => setCurrentProduct({ ...currentProduct, image: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
+          </div>
+
+          <div>
+            <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: '5px' }}>Mô tả sản phẩm</label>
+            <textarea placeholder="Mô tả chất liệu tái chế, nguồn gốc xuất xứ, đặc tính sinh thái..." rows={3} value={currentProduct.description || ''} onChange={e => setCurrentProduct({ ...currentProduct, description: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box', fontFamily: 'inherit' }} />
+          </div>
+
+          {isEditProduct && (
+            <div>
+              <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: '5px' }}>Trạng thái kinh doanh</label>
+              <select value={currentProduct.status} onChange={e => setCurrentProduct({ ...currentProduct, status: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+                <option value="ACTIVE">Đang kinh doanh (ACTIVE)</option>
+                <option value="INACTIVE">Ngừng kinh doanh (INACTIVE)</option>
               </select>
-              <input type="number" step="0.01" placeholder="Price" value={currentProduct.price} onChange={e => setCurrentProduct({ ...currentProduct, price: e.target.value })} required style={{ padding: '10px' }} />
-              <input type="number" placeholder="Stock quantity" value={currentProduct.stockQuantity} onChange={e => setCurrentProduct({ ...currentProduct, stockQuantity: parseInt(e.target.value) || 0 })} required style={{ padding: '10px' }} />
-              <input type="text" placeholder="Image filename (in assets/products) or full URL" value={currentProduct.image || ''} onChange={e => setCurrentProduct({ ...currentProduct, image: e.target.value })} style={{ padding: '10px' }} />
-              <textarea placeholder="Description" value={currentProduct.description || ''} onChange={e => setCurrentProduct({ ...currentProduct, description: e.target.value })} style={{ padding: '10px' }} />
-              {isEditProduct && (
-                <select value={currentProduct.status} onChange={e => setCurrentProduct({ ...currentProduct, status: e.target.value })} style={{ padding: '10px' }}>
-                  <option value="ACTIVE">Active</option>
-                  <option value="INACTIVE">Inactive</option>
-                </select>
-              )}
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-                <button type="button" onClick={() => setIsProductModalOpen(false)}>Cancel</button>
-                <button type="submit" style={{ backgroundColor: '#2e7d32', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '5px' }}>Save</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+            </div>
+          )}
 
-      {/* CATEGORY MODAL */}
-      {isCategoryModalOpen && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-          <div style={{ backgroundColor: '#fff', padding: '30px', borderRadius: '10px', width: '450px' }}>
-            <h3>{isEditCategory ? 'Edit category' : 'Add category'}</h3>
-            <form onSubmit={handleCategorySubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-              <input type="text" placeholder="Name" value={currentCategory.name} onChange={e => setCurrentCategory({ ...currentCategory, name: e.target.value })} required style={{ padding: '10px' }} />
-              <textarea placeholder="Description" value={currentCategory.description || ''} onChange={e => setCurrentCategory({ ...currentCategory, description: e.target.value })} style={{ padding: '10px' }} />
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-                <button type="button" onClick={() => setIsCategoryModalOpen(false)}>Cancel</button>
-                <button type="submit" style={{ backgroundColor: '#2e7d32', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '5px' }}>Save</button>
-              </div>
-            </form>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+            <button type="button" onClick={() => setIsProductModalOpen(false)} style={{ padding: '10px 18px', border: '1px solid #cbd5e1', background: 'transparent', borderRadius: '6px', cursor: 'pointer' }}>Hủy</button>
+            <button type="submit" style={{ backgroundColor: '#2e7d32', color: '#fff', border: 'none', padding: '10px 22px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>Lưu sản phẩm</button>
           </div>
-        </div>
-      )}
+        </form>
+      </div>
     </div>
+  )
+}
+
+{/* CATEGORY MODAL */ }
+{
+  isCategoryModalOpen && (
+    <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+      <div style={{ backgroundColor: '#fff', padding: '30px', borderRadius: '12px', width: '460px', boxShadow: '0 8px 30px rgba(0,0,0,0.2)' }}>
+        <h3 style={{ color: '#1b3a1f', marginTop: 0 }}>{isEditCategory ? '✏️ Chỉnh sửa danh mục' : '➕ Thêm danh mục mới'}</h3>
+        <form onSubmit={handleCategorySubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: '5px' }}>Tên danh mục *</label>
+            <input type="text" placeholder="Ví dụ: Thời Trang & Phụ Kiện Xanh" value={currentCategory.name} onChange={e => setCurrentCategory({ ...currentCategory, name: e.target.value })} required style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: '5px' }}>Mô tả danh mục</label>
+            <textarea placeholder="Mô tả về nhóm sản phẩm sinh thái trong danh mục này..." rows={3} value={currentCategory.description || ''} onChange={e => setCurrentCategory({ ...currentCategory, description: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box', fontFamily: 'inherit' }} />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+            <button type="button" onClick={() => setIsCategoryModalOpen(false)} style={{ padding: '10px 18px', border: '1px solid #cbd5e1', background: 'transparent', borderRadius: '6px', cursor: 'pointer' }}>Hủy</button>
+            <button type="submit" style={{ backgroundColor: '#2e7d32', color: '#fff', border: 'none', padding: '10px 22px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>Lưu danh mục</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+    </div >
   );
 };
 
