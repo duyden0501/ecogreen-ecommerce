@@ -202,7 +202,7 @@ const AdminDashboard = () => {
           <span style={{ fontSize: '1.2rem' }}>👤</span>
           <span style={{ fontSize: '0.9rem', color: '#c8e6c9' }}>{user?.username} (Quản trị viên)</span>
         </div>
-      </div >
+      </ >
 
   {/* MAIN */ }
   < div style = {{ flex: 1, display: 'flex', flexDirection: 'column' }}>
