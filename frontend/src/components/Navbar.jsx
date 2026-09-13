@@ -41,7 +41,9 @@ const Navbar = ({ searchTerm, setSearchTerm }) => {
 
           {user ? (
             <>
-              <Link to="/orders" className="navbar-link">My Orders</Link>
+              <Link to="/faq" className="navbar-link">Hỗ Trợ</Link>
+              <span className="navbar-divider">|</span>
+              <Link to="/orders" className="navbar-link">Đơn hàng</Link>
               <span className="navbar-divider">|</span>
               {isAdmin && (
                 <>

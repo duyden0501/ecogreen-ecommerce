@@ -7,6 +7,7 @@ import {
 import { getAllCategories, createCategory, updateCategory, deleteCategory } from '../../services/categoryApi';
 import { getAllOrders, updateOrderStatus } from '../../services/orderApi';
 import { getAllUsers, deleteUser } from '../../services/userApi';
+import { getAllReturns, updateReturnStatus } from '../../services/returnApi';
 import AdminStats from '../../components/AdminStats';
 import { resolveProductImage } from '../../utils/imageResolver';
 
@@ -14,12 +15,12 @@ const emptyProduct = { name: '', price: '', image: '', description: '', stockQua
 const emptyCategory = { name: '', description: '' };
 
 /**
- * Admin CMS - products, categories, orders, users.
+ * Admin CMS - products, categories, orders, users, returns.
  * The frontend hiding these tabs behind <ProtectedRoute adminOnly> is a UX
  * convenience only; every write here re-checks the ADMIN role on the backend.
  */
 const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState('products'); // products | categories | orders | users
+  const [activeTab, setActiveTab] = useState('products'); // products | categories | orders | returns | users
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
   const navigate = useNavigate();
@@ -29,6 +30,7 @@ const AdminDashboard = () => {
   const [categories, setCategories] = useState([]);
   const [orders, setOrders] = useState([]);
   const [users, setUsers] = useState([]);
+  const [returns, setReturns] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
@@ -58,6 +60,8 @@ const AdminDashboard = () => {
         setOrders(await getAllOrders());
       } else if (activeTab === 'users') {
         setUsers(await getAllUsers());
+      } else if (activeTab === 'returns') {
+        setReturns(await getAllReturns());
       }
     } catch (error) {
       setErrorMsg(error.friendlyMessage || 'Could not load data.');
@@ -117,6 +121,19 @@ const AdminDashboard = () => {
     catch (e) { alert(e.friendlyMessage || 'Could not update status.'); }
   };
 
+  // --- Returns ---
+  const handleUpdateReturnStatus = async (id, status) => {
+    const defaultNote = status === 'APPROVED' ? 'EcoGreen đã chấp thuận yêu cầu đổi trả. Vui lòng đóng gói sản phẩm gửi về địa chỉ shop.' : 'Yêu cầu không đáp ứng điều kiện đổi trả trong 7 ngày.';
+    const adminNote = prompt(`Nhập ghi chú phản hồi khách hàng:`, defaultNote);
+    if (adminNote === null) return;
+    try {
+      await updateReturnStatus(id, status, adminNote);
+      loadData();
+    } catch (e) {
+      alert(e.friendlyMessage || 'Không thể cập nhật trạng thái đổi/trả.');
+    }
+  };
+
   // --- Users ---
   const handleDeleteUser = async (id, name) => {
     if (!window.confirm(`Delete account "${name}"?`)) return;
@@ -128,7 +145,13 @@ const AdminDashboard = () => {
     navigate('/login');
   };
 
-  const tabLabel = { products: 'Products', categories: 'Categories', orders: 'Orders', users: 'Users' }[activeTab];
+  const tabLabel = {
+    products: 'Products',
+    categories: 'Categories',
+    orders: 'Orders',
+    returns: 'Quản lý Đổi / Trả hàng (Returns & Refunds)',
+    users: 'Users',
+  }[activeTab];
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f0f2f5' }}>
@@ -138,7 +161,7 @@ const AdminDashboard = () => {
           <h2 style={{ fontSize: '1.2rem', margin: 0 }}>🌿 EcoGreen Admin</h2>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          {['products', 'categories', 'orders', 'users'].map((tab) => (
+          {['products', 'categories', 'orders', 'returns', 'users'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -152,6 +175,7 @@ const AdminDashboard = () => {
               {tab === 'products' && '📦 Products'}
               {tab === 'categories' && '🏷️ Categories'}
               {tab === 'orders' && '📜 Orders'}
+              {tab === 'returns' && '♻️ Đổi / Trả hàng'}
               {tab === 'users' && '👥 Users'}
             </button>
           ))}
@@ -359,6 +383,77 @@ const AdminDashboard = () => {
                     </tbody>
                   </table>
                   {users.length === 0 && <p style={{ padding: '20px', textAlign: 'center', color: '#888' }}>No users yet.</p>}
+                </div>
+              )}
+
+              {activeTab === 'returns' && (
+                <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                  <div style={{ marginBottom: '16px' }}>
+                    <h4 style={{ margin: 0, color: '#1b3a1f', fontSize: '1.1rem' }}>Danh sách yêu cầu Đổi / Trả hàng</h4>
+                    <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: '#666' }}>
+                      Xem xét và phê duyệt hoặc từ chối các yêu cầu đổi trả theo chính sách 7 ngày của EcoGreen.
+                    </p>
+                  </div>
+                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                      <tr style={{ backgroundColor: '#f8f9fa', textAlign: 'left', borderBottom: '2px solid #eee' }}>
+                        <th style={{ padding: '12px' }}>Mã YC</th>
+                        <th style={{ padding: '12px' }}>Đơn hàng</th>
+                        <th style={{ padding: '12px' }}>Khách hàng</th>
+                        <th style={{ padding: '12px' }}>Lý do</th>
+                        <th style={{ padding: '12px' }}>Mô tả</th>
+                        <th style={{ padding: '12px' }}>Trạng thái</th>
+                        <th style={{ padding: '12px' }}>Ghi chú Admin</th>
+                        <th style={{ padding: '12px', textAlign: 'center' }}>Thao tác</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {returns.map((r) => (
+                        <tr key={r.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
+                          <td style={{ padding: '12px' }}>#{r.id}</td>
+                          <td style={{ padding: '12px', fontWeight: 'bold' }}>#{r.orderId}</td>
+                          <td style={{ padding: '12px' }}>{r.username}</td>
+                          <td style={{ padding: '12px', color: '#e65100', fontWeight: '500' }}>{r.reason}</td>
+                          <td style={{ padding: '12px', maxWidth: '220px', fontSize: '0.88rem' }}>{r.description || '—'}</td>
+                          <td style={{ padding: '12px' }}>
+                            <span style={{
+                              display: 'inline-block',
+                              padding: '4px 10px',
+                              borderRadius: '12px',
+                              fontSize: '0.75rem',
+                              fontWeight: 'bold',
+                              backgroundColor: r.status === 'APPROVED' ? '#e8f5e9' : r.status === 'REJECTED' ? '#ffebee' : '#fff8e1',
+                              color: r.status === 'APPROVED' ? '#2e7d32' : r.status === 'REJECTED' ? '#c62828' : '#f57f17'
+                            }}>
+                              {r.status === 'APPROVED' ? 'Đã duyệt' : r.status === 'REJECTED' ? 'Từ chối' : 'Chờ xử lý'}
+                            </span>
+                          </td>
+                          <td style={{ padding: '12px', fontSize: '0.88rem', color: '#555' }}>{r.adminNote || '—'}</td>
+                          <td style={{ padding: '12px', textAlign: 'center' }}>
+                            {r.status === 'PENDING' ? (
+                              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                <button
+                                  onClick={() => handleUpdateReturnStatus(r.id, 'APPROVED')}
+                                  style={{ padding: '6px 12px', backgroundColor: '#2e7d32', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.8rem' }}
+                                >
+                                  Duyệt
+                                </button>
+                                <button
+                                  onClick={() => handleUpdateReturnStatus(r.id, 'REJECTED')}
+                                  style={{ padding: '6px 12px', backgroundColor: '#c62828', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.8rem' }}
+                                >
+                                  Từ chối
+                                </button>
+                              </div>
+                            ) : (
+                              <span style={{ color: '#888', fontSize: '0.85rem' }}>Đã giải quyết</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {returns.length === 0 && <p style={{ padding: '24px', textAlign: 'center', color: '#888' }}>Chưa có yêu cầu đổi/trả hàng nào.</p>}
                 </div>
               )}
             </>

@@ -45,12 +45,43 @@ const Home = ({ searchTerm }) => {
 
   return (
     <div className="home-container">
-      <header className="home-header">
-        <h1 className="home-title">EcoGreen</h1>
-        <p className="home-subtitle">Sustainable, everyday products for a greener home.</p>
-      </header>
 
       <BannerSlider />
+
+      {/* === Section Cam Kết EcoGreen === */}
+      <section className="eco-commit">
+        <div className="eco-commit-item">
+          <span className="eco-commit-icon">🌿</span>
+          <div>
+            <strong>Đóng gói giấy tái chế 100%</strong>
+            <p>Không hộp xốp, không túi nilon</p>
+          </div>
+        </div>
+        <div className="eco-commit-divider" />
+        <div className="eco-commit-item">
+          <span className="eco-commit-icon">🚚</span>
+          <div>
+            <strong>Giao hàng không rác thải nhựa</strong>
+            <p>Miễn phí giao hàng đơn từ 500K</p>
+          </div>
+        </div>
+        <div className="eco-commit-divider" />
+        <div className="eco-commit-item">
+          <span className="eco-commit-icon">♻️</span>
+          <div>
+            <strong>Đổi trả trong 7 ngày</strong>
+            <p>Hàng lỗi đổi mới, hoàn tiền 100%</p>
+          </div>
+        </div>
+        <div className="eco-commit-divider" />
+        <div className="eco-commit-item">
+          <span className="eco-commit-icon">⭐</span>
+          <div>
+            <strong>Sản phẩm chứng nhận</strong>
+            <p>Tái chế được kiểm định chất lượng</p>
+          </div>
+        </div>
+      </section>
 
       {categories.length > 0 && (
         <CategoryFilter
@@ -78,7 +109,7 @@ const Home = ({ searchTerm }) => {
           <>
             <div className="results-info">
               {searchTerm && (
-                <p>Found <strong>{filteredProducts.length}</strong> result(s) for "{searchTerm}"</p>
+                <p>Đã tìm thấy <strong>{filteredProducts.length}</strong> sản phẩm cho "{searchTerm}"</p>
               )}
             </div>
 
@@ -99,7 +130,7 @@ const Home = ({ searchTerm }) => {
             {displayCount < filteredProducts.length && (
               <div className="load-more-section">
                 <button className="load-more-btn" onClick={() => setDisplayCount((c) => c + 12)}>
-                  Load more
+                  Xem thêm sản phẩm
                 </button>
               </div>
             )}

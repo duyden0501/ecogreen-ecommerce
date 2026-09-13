@@ -53,4 +53,18 @@ public class PaymentService {
 
         return payment;
     }
+
+    /**
+     * Cập nhật phương thức thanh toán (COD / VIETQR / MOMO).
+     * Chỉ cho phép khi đơn hàng chưa được thanh toán.
+     */
+    @Transactional
+    public Payment updateMethod(Long orderId, String method) {
+        Payment payment = getByOrderId(orderId);
+        if (payment.getStatus() == Payment.Status.SUCCESS) {
+            throw new BadRequestException("Đơn hàng đã được thanh toán, không thể thay đổi phương thức.");
+        }
+        payment.setPaymentMethod(method);
+        return paymentRepository.save(payment);
+    }
 }
