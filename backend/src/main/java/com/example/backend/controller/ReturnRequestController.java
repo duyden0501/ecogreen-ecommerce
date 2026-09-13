@@ -39,8 +39,9 @@ public class ReturnRequestController {
             @RequestBody Map<String, String> body,
             HttpServletRequest request) {
         User user = authGuard.requireUser(request);
-        Long orderId = Long.parseLong(body.get("orderId"));
-        ReturnRequest rr = returnService.create(
+        Long orderId = Long.valueOf(body.get("orderId"));
+        ReturnRequest rr;
+        rr = returnService.create(
                 user.getId(),
                 orderId,
                 body.get("reason"),
