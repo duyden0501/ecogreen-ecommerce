@@ -22,7 +22,7 @@ echo.
 
 :: 2. Khoi dong Backend Spring Boot
 echo [2/3] Bat Backend Spring Boot (Cong 8081)...
-start "EcoGreen Backend (Spring Boot - Port 8081)" cmd /k "cd /d ""%ROOT_DIR%backend"" && set ""JAVA_HOME=C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot"" && .\mvnw.cmd spring-boot:run"
+start "EcoGreen Backend (Spring Boot - Port 8081)" cmd /k "cd /d ""%ROOT_DIR%backend"" && set ""JAVA_HOME=C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot""& .\mvnw.cmd spring-boot:run"
 echo [OK] Da mo cua so Backend.
 echo.
 
